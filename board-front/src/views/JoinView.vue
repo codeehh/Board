@@ -1,23 +1,23 @@
 <template>
   <div class="container">
     <UserComp />
-    <BoardComp />
+    <JoinComp />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import UserComp from "@/components/UserComp.vue";
-import BoardComp from "@/components/BoardComp.vue";
+import JoinComp from "@/components/JoinComp.vue";
 
 export default {
   name: "HomeView",
   components: {
     UserComp,
-    BoardComp,
+    JoinComp,
   },
 };
 </script>
+
 <style>
 .container {
   display: flex;
