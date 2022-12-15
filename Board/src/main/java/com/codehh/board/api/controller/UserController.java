@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -19,6 +20,24 @@ import java.security.NoSuchAlgorithmException;
 public class UserController {
     @Autowired
     UserService userService;
+
+    @PostMapping("/id-check")
+    public ResponseEntity<Object> idCheck(@RequestParam String id) {
+        HttpStatus status = HttpStatus.OK;
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("canUse", userService.idCheck(id));
+
+        return ResponseEntity.status(status).body(result);
+    }
+
+    @PostMapping("/nickname-check")
+    public ResponseEntity<Object> nicknameCheck(@RequestParam String nickname) {
+        HttpStatus status = HttpStatus.OK;
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("canUse", userService.nicknameCheck(nickname));
+
+        return ResponseEntity.status(status).body(result);
+    }
 
     @PostMapping("/users")
     public ResponseEntity<Object> join(@ModelAttribute JoinReq joinReq) {
@@ -31,6 +50,7 @@ public class UserController {
         } catch (JoinFailureException e) {
             status = HttpStatus.BAD_REQUEST;
         }
+
         return ResponseEntity.status(status).body(result);
     }
 }
