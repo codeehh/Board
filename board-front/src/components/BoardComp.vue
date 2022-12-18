@@ -1,6 +1,6 @@
 <template>
   <div class="border rounded-4">
-    <div class="board" style="margin: 10px">
+    <div class="board" style="margin: 50px">
       <table class="table table-hover table-sm">
         <thead>
           <tr>
