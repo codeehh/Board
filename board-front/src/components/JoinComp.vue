@@ -1,19 +1,21 @@
 <template>
   <div class="border rounded-4">
     <div style="width: 1000px; margin: 50px">
-      <div class="mb-0" style="width: 400px">
-        <input type="text" style="border: " class="form-control" v-model="inputId" placeholder="아이디" aria-describedby="idHelp" />
-        <div id="idHelp" class="form-text" :class="{ blue: inputId && idCheck, red: inputId && !idCheck }">알파벳 소문자, 숫자로 2~12글자</div>
+      <div class="mb-0" style="display: flex">
+        <input type="text" style="width: 400px" class="form-control" v-model="inputId" placeholder="아이디" aria-describedby="idHelp" />
+        <button type="button" id="send_id" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
+      <div id="idHelp" class="form-text" :class="{ blue: inputId && idCheck, red: inputId && !idCheck }">알파벳 소문자, 숫자로 2~12자리</div>
       <br />
-      <div class="mb-0">
+      <div class="mb-0" style="display: flex">
         <input type="text" style="width: 400px" class="form-control" v-model="inputNickname" placeholder="닉네임" aria-describedby="nicknameHelp" />
-        <div id="nicknameHelp" class="form-text" :class="{ blue: inputNickname && nicknameCheck, red: inputNickname && !nicknameCheck }">알파벳, 한글, 숫자로 2~12글자</div>
+        <button type="button" id="send_nickname" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
+      <div id="nicknameHelp" class="form-text" :class="{ blue: inputNickname && nicknameCheck, red: inputNickname && !nicknameCheck }">알파벳, 한글, 숫자로 2~12자리</div>
       <br />
       <div class="mb-0">
         <input type="password" style="width: 400px" class="form-control" v-model="inputPassword" placeholder="비밀번호" aria-describedby="passwordHelp" />
-        <div id="passwordHelp" class="form-text" :class="{ blue: inputPassword && passwordCheck, red: inputPassword && !passwordCheck }">특수문자, 알파벳, 숫자 1개 이상 포함, 8~15글자</div>
+        <div id="passwordHelp" class="form-text" :class="{ blue: inputPassword && passwordCheck, red: inputPassword && !passwordCheck }">특수문자, 알파벳, 숫자 1개 이상 포함, 8~15자리</div>
       </div>
       <br />
       <div class="mb-0">
@@ -21,18 +23,27 @@
         <div id="passwordCheckHelp" class="form-text" :class="{ blue: inputPasswordCheck && passwordCheckCheck, red: inputPasswordCheck && !passwordCheckCheck }">비밀번호 확인</div>
       </div>
       <br />
-      <div class="mb-0">
-        <input type="text" style="width: 400px" class="form-control" :class="{ pass: emailCheck }" v-model="inputEmail" placeholder="이메일" aria-describedby="emailHelp" />
-        <div id="emailHelp" class="form-text">&nbsp;</div>
+      <div class="mb-1" style="display: flex">
+        <input type="text" style="width: 400px" class="form-control" v-model="inputEmail" placeholder="이메일" />
+        <button type="button" id="send_email" class="btn btn-primary" :disabled="emailCheck" style="margin-left: 10px">전송</button>
+      </div>
+      <div class="mb-1" style="display: flex">
+        <input type="text" style="width: 400px" class="form-control" v-model="inputAuthCode" placeholder="인증코드(12자리)" />
+        <button type="button" id="send_auth_code" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
       <button type="button" id="cancel" class="btn btn-danger" style="width: 110px; margin-right: 10px">취소</button>
-      <button type="submit" id="join" class="btn btn-primary" :disabled="!(idCheck && nicknameCheck && passwordCheck && passwordCheckCheck)" style="width: 130px">회원가입</button>
+      <button type="submit" id="join" class="btn btn-primary" :disabled="!(idCheck && nicknameCheck && passwordCheck && passwordCheckCheck && authCodeCheck)" style="width: 130px">회원가입</button>
     </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 import router from "@/router";
+import { id_check } from "@/api/index.js";
+import { nickname_check } from "@/api/index.js";
+import { email_check } from "@/api/index.js";
+import { auth_code_check } from "@/api/index.js";
 import { join } from "@/api/index.js";
 export default {
   data() {
@@ -42,12 +53,14 @@ export default {
       inputPassword: "",
       inputPasswordCheck: "",
       inputEmail: "",
+      inputAuthCode: "",
 
       idCheck: false,
       nicknameCheck: false,
       passwordCheck: false,
       passwordCheckCheck: false,
       emailCheck: false,
+      authCodeCheck: false,
     };
   },
   watch: {
@@ -116,18 +129,42 @@ export default {
     inputPasswordCheck() {
       this.passwordCheckCheck = this.inputPasswordCheck && this.passwordCheck && this.inputPassword == this.inputPasswordCheck;
     },
+    inputEmail() {
+      this.emailCheck = false;
+      this.authCodeCheck = false;
+    }
   },
   mounted() {
+    const send_id_btn = document.querySelector("#send_id");
+    const send_nickname_btn = document.querySelector("#send_nickname");
+    const send_email_btn = document.querySelector("#send_email");
+    const send_auth_code_btn = document.querySelector("#send_auth_code");
     const cancel_btn = document.querySelector("#cancel");
     const join_btn = document.querySelector("#join");
 
+    let $vm = this;
+
+    send_id_btn.onclick = function () {
+      id_check($vm.inputId);
+    };
+    send_nickname_btn.onclick = function () {
+      nickname_check($vm.inputNickname);
+    };
+    send_email_btn.onclick = function () {
+      $vm.emailCheck = true;
+      email_check($vm.inputEmail);
+    };
+    send_auth_code_btn.onclick = function () {
+      if (auth_code_check($vm.inputEmail, $vm.inputAuthCode))
+        $vm.authCodeCheck = true;
+    };
     cancel_btn.onclick = function () {
       router.push("/");
     };
     join_btn.onclick = function () {
-      if (join_check()) console.log(true);
-      else console.log(false);
-      // join(this.inputId, this.inputNickname, this.inputPassword, this.inputEmail);
+      // if (join_check()) console.log(true);
+      // else console.log(false);
+      join($vm.inputId, $vm.inputNickname, $vm.inputPassword, $vm.inputEmail);
     };
   },
 };
@@ -137,6 +174,7 @@ export default {
 .blue {
   color: blue;
 }
+
 .red {
   color: red;
 }
