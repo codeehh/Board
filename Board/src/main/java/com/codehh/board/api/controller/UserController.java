@@ -1,5 +1,6 @@
 package com.codehh.board.api.controller;
 
+import com.codehh.board.api.dto.user.request.JoinReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.api.service.UserService;
 import com.codehh.board.common.exception.JoinFailureException;
@@ -74,11 +75,11 @@ public class UserController {
 
 
     @PostMapping("/users")
-    public ResponseEntity<Object> join(@RequestBody HashMap<String, Object> payload) {
+    public ResponseEntity<Object> join(@RequestBody JoinReq joinReq) {
         HttpStatus status = HttpStatus.OK;
         JoinRes result = null;
         try {
-            result = userService.join(payload);
+            result = userService.join(joinReq);
         } catch (NoSuchAlgorithmException e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } catch (JoinFailureException e) {

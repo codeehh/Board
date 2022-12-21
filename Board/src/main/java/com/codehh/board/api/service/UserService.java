@@ -15,5 +15,5 @@ public interface UserService {
 
     public String sendEmail(String email);
 
-    public JoinRes join(HashMap<String, Object> payload) throws NoSuchAlgorithmException, JoinFailureException;
+    public JoinRes join(JoinReq joinReq) throws NoSuchAlgorithmException, JoinFailureException;
 }
