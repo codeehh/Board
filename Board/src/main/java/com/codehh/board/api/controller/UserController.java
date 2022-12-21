@@ -21,6 +21,8 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    private HashMap<String, String> emailToAuthCode = new HashMap<>();
+
     @PostMapping("/id-check")
     public ResponseEntity<Object> idCheck(@RequestParam String id) {
         HttpStatus status = HttpStatus.OK;
@@ -38,6 +40,30 @@ public class UserController {
 
         return ResponseEntity.status(status).body(result);
     }
+
+    @PostMapping("/email-check")
+    public ResponseEntity<Object> emailCheck(@RequestParam String email) {
+        HttpStatus status = HttpStatus.OK;
+        //이메일 보내는 로직
+        String authCode = userService.sendEmail(email);
+
+        //key: 보낸 이메일, value: 인증코드 저장
+        emailToAuthCode.put(email, authCode);
+
+        return ResponseEntity.status(status).build();
+    }
+
+    @PostMapping("/auth-code-check")
+    public ResponseEntity<Object> authCodeCheck(@RequestParam String email, @RequestParam("auth_code") String authCode) {
+        HttpStatus status = HttpStatus.OK;
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        //인증코드 매칭 확인
+        boolean isMatch = (emailToAuthCode.get(email) == authCode);
+        result.put("isMatch", isMatch);
+
+        return ResponseEntity.status(status).body(result);
+    }
+
 
     @PostMapping("/users")
     public ResponseEntity<Object> join(@ModelAttribute JoinReq joinReq) {

@@ -3,11 +3,14 @@ package com.codehh.board.api.service;
 import com.codehh.board.api.dto.user.request.JoinReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.common.exception.JoinFailureException;
+import com.codehh.board.common.util.AuthCodeGenerator;
 import com.codehh.board.common.util.Checker;
 import com.codehh.board.common.util.HashGenerator;
 import com.codehh.board.db.entity.User;
 import com.codehh.board.db.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -17,6 +20,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private JavaMailSender javaMailSender;
 
     @Override
     public boolean idCheck(String id) {
@@ -38,6 +44,19 @@ public class UserServiceImpl implements UserService {
         //중복 검사
         User user = userRepository.findByNickname(nickname);
         return user == null;
+    }
+
+    @Override
+    public String sendEmail(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("Board 가입 인증 메일입니다.");
+        String authCode = AuthCodeGenerator.getCode(12);
+        message.setText(authCode);
+
+        javaMailSender.send(message);
+
+        return authCode;
     }
 
     @Override

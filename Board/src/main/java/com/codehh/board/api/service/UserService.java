@@ -12,5 +12,7 @@ public interface UserService {
 
     public boolean nicknameCheck(String nickname);
 
+    public String sendEmail(String email);
+
     public JoinRes join(JoinReq joinReq) throws NoSuchAlgorithmException, JoinFailureException;
 }

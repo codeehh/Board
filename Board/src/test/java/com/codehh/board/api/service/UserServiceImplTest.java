@@ -36,6 +36,11 @@ class UserServiceImplTest {
     }
 
     @Test
+    void sendEmail() {
+        userService.sendEmail("hh9501@naver.com");
+    }
+
+    @Test
     void nicknameCheck() throws NoSuchAlgorithmException, JoinFailureException {
         String nickname1 = "중복된닉네임";
         String nickname2 = "중복되지않은닉네임";
