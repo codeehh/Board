@@ -1,6 +1,5 @@
 package com.codehh.board.api.controller;
 
-import com.codehh.board.api.dto.user.request.JoinReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.api.service.UserService;
 import com.codehh.board.common.exception.JoinFailureException;
@@ -24,7 +23,9 @@ public class UserController {
     private HashMap<String, String> emailToAuthCode = new HashMap<>();
 
     @PostMapping("/id-check")
-    public ResponseEntity<Object> idCheck(@RequestParam String id) {
+    public ResponseEntity<Object> idCheck(@RequestBody HashMap<String, Object> payload) {
+        String id = (String) payload.get("id");
+
         HttpStatus status = HttpStatus.OK;
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("canUse", userService.idCheck(id));
@@ -33,7 +34,9 @@ public class UserController {
     }
 
     @PostMapping("/nickname-check")
-    public ResponseEntity<Object> nicknameCheck(@RequestParam String nickname) {
+    public ResponseEntity<Object> nicknameCheck(@RequestBody HashMap<String, Object> payload) {
+        String nickname = (String) payload.get("nickname");
+
         HttpStatus status = HttpStatus.OK;
         HashMap<String, Object> result = new HashMap<String, Object>();
         result.put("canUse", userService.nicknameCheck(nickname));
@@ -42,7 +45,9 @@ public class UserController {
     }
 
     @PostMapping("/email-check")
-    public ResponseEntity<Object> emailCheck(@RequestParam String email) {
+    public ResponseEntity<Object> emailCheck(@RequestBody HashMap<String, Object> payload) {
+        String email = (String) payload.get("email");
+
         HttpStatus status = HttpStatus.OK;
         //이메일 보내는 로직
         String authCode = userService.sendEmail(email);
@@ -54,11 +59,14 @@ public class UserController {
     }
 
     @PostMapping("/auth-code-check")
-    public ResponseEntity<Object> authCodeCheck(@RequestParam String email, @RequestParam("auth_code") String authCode) {
+    public ResponseEntity<Object> authCodeCheck(@RequestBody HashMap<String, Object> payload) {
+        String email = (String) payload.get("email");
+        String authCode = (String) payload.get("auth_code");
+
         HttpStatus status = HttpStatus.OK;
         HashMap<String, Object> result = new HashMap<String, Object>();
         //인증코드 매칭 확인
-        boolean isMatch = (emailToAuthCode.get(email) == authCode);
+        boolean isMatch = (emailToAuthCode.get(email).equals(authCode));
         result.put("isMatch", isMatch);
 
         return ResponseEntity.status(status).body(result);
@@ -66,11 +74,11 @@ public class UserController {
 
 
     @PostMapping("/users")
-    public ResponseEntity<Object> join(@ModelAttribute JoinReq joinReq) {
+    public ResponseEntity<Object> join(@RequestBody HashMap<String, Object> payload) {
         HttpStatus status = HttpStatus.OK;
         JoinRes result = null;
         try {
-            result = userService.join(joinReq);
+            result = userService.join(payload);
         } catch (NoSuchAlgorithmException e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } catch (JoinFailureException e) {
