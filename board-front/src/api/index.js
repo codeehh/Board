@@ -7,13 +7,13 @@ const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
 async function id_check(id) {
     await axios
         .post(API_BASE_URL + `/api/id-check`, {
-            data: {
-                id: id,
-            }
+            id: id,
         })
         .then((res) => {
-            console.log(res);
-
+            if (res.data["canUse"])
+                alert("사용할 수 있는 아이디입니다")
+            else
+                alert("사용할 수 없는 아이디입니다")
         })
         .catch((err) => {
             console.log(err)
@@ -23,13 +23,13 @@ async function id_check(id) {
 async function nickname_check(nickname) {
     await axios
         .post(API_BASE_URL + `/api/nickname-check`, {
-            data: {
-                nickname: nickname,
-            }
+            nickname: nickname,
         })
         .then((res) => {
-            console.log(res);
-
+            if (res.data["canUse"])
+                alert("사용할 수 있는 닉네임입니다")
+            else
+                alert("사용할 수 없는 닉네임입니다")
         })
         .catch((err) => {
             console.log(err)
@@ -39,30 +39,29 @@ async function nickname_check(nickname) {
 async function email_check(email) {
     await axios
         .post(API_BASE_URL + `/api/email-check`, {
-            data: {
-                email: email,
-            }
+            email: email,
         })
-        .then((res) => {
-            console.log(res);
-
+        .then(() => {
+            alert("메일로 인증코드를 보냈습니다")
         })
-        .catch((err) => {
-            console.log(err)
+        .catch(() => {
+            alert("잘못된 메일 주소입니다")
         });
 }
 
 async function auth_code_check(email, auth_code) {
     await axios
         .post(API_BASE_URL + `/api/auth-code-check`, {
-            data: {
-                email: email,
-                auth_code: auth_code,
-            }
+            email: email,
+            auth_code: auth_code,
         })
         .then((res) => {
-            console.log(res);
-
+            if (res.data["isMatch"]) {
+                alert("올바른 인증코드입니다")
+                return true;
+            }
+            else
+                alert("잘못된 인증코드입니다")
         })
         .catch((err) => {
             console.log(err)
@@ -73,16 +72,13 @@ async function auth_code_check(email, auth_code) {
 async function join(id, nickname, password, email) {
     await axios
         .post(API_BASE_URL + `/api/users`, {
-            data: {
-                id: id,
-                nickname: nickname,
-                password: password,
-                email: email
-            }
+            id: id,
+            nickname: nickname,
+            password: password,
+            email: email
         })
         .then((res) => {
             console.log(res);
-
         })
         .catch((err) => {
             console.log(err)

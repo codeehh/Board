@@ -5,17 +5,17 @@
         <input type="text" style="width: 400px" class="form-control" v-model="inputId" placeholder="아이디" aria-describedby="idHelp" />
         <button type="button" id="send_id" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
-      <div id="idHelp" class="form-text" :class="{ blue: inputId && idCheck, red: inputId && !idCheck }">알파벳 소문자, 숫자로 2~12글자</div>
+      <div id="idHelp" class="form-text" :class="{ blue: inputId && idCheck, red: inputId && !idCheck }">알파벳 소문자, 숫자로 2~12자리</div>
       <br />
       <div class="mb-0" style="display: flex">
         <input type="text" style="width: 400px" class="form-control" v-model="inputNickname" placeholder="닉네임" aria-describedby="nicknameHelp" />
         <button type="button" id="send_nickname" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
-      <div id="nicknameHelp" class="form-text" :class="{ blue: inputNickname && nicknameCheck, red: inputNickname && !nicknameCheck }">알파벳, 한글, 숫자로 2~12글자</div>
+      <div id="nicknameHelp" class="form-text" :class="{ blue: inputNickname && nicknameCheck, red: inputNickname && !nicknameCheck }">알파벳, 한글, 숫자로 2~12자리</div>
       <br />
       <div class="mb-0">
         <input type="password" style="width: 400px" class="form-control" v-model="inputPassword" placeholder="비밀번호" aria-describedby="passwordHelp" />
-        <div id="passwordHelp" class="form-text" :class="{ blue: inputPassword && passwordCheck, red: inputPassword && !passwordCheck }">특수문자, 알파벳, 숫자 1개 이상 포함, 8~15글자</div>
+        <div id="passwordHelp" class="form-text" :class="{ blue: inputPassword && passwordCheck, red: inputPassword && !passwordCheck }">특수문자, 알파벳, 숫자 1개 이상 포함, 8~15자리</div>
       </div>
       <br />
       <div class="mb-0">
@@ -25,19 +25,20 @@
       <br />
       <div class="mb-1" style="display: flex">
         <input type="text" style="width: 400px" class="form-control" v-model="inputEmail" placeholder="이메일" />
-        <button type="button" id="send_email" class="btn btn-primary" style="margin-left: 10px">전송</button>
+        <button type="button" id="send_email" class="btn btn-primary" :disabled="emailCheck" style="margin-left: 10px">전송</button>
       </div>
       <div class="mb-1" style="display: flex">
-        <input type="text" style="width: 400px" class="form-control" v-model="inputAuthCode" placeholder="인증코드" />
+        <input type="text" style="width: 400px" class="form-control" v-model="inputAuthCode" placeholder="인증코드(12자리)" />
         <button type="button" id="send_auth_code" class="btn btn-primary" style="margin-left: 10px">확인</button>
       </div>
       <button type="button" id="cancel" class="btn btn-danger" style="width: 110px; margin-right: 10px">취소</button>
-      <button type="submit" id="join" class="btn btn-primary" :disabled="!(idCheck && nicknameCheck && passwordCheck && passwordCheckCheck)" style="width: 130px">회원가입</button>
+      <button type="submit" id="join" class="btn btn-primary" :disabled="!(idCheck && nicknameCheck && passwordCheck && passwordCheckCheck && authCodeCheck)" style="width: 130px">회원가입</button>
     </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 import router from "@/router";
 import { id_check } from "@/api/index.js";
 import { nickname_check } from "@/api/index.js";
@@ -59,6 +60,7 @@ export default {
       passwordCheck: false,
       passwordCheckCheck: false,
       emailCheck: false,
+      authCodeCheck: false,
     };
   },
   watch: {
@@ -127,6 +129,10 @@ export default {
     inputPasswordCheck() {
       this.passwordCheckCheck = this.inputPasswordCheck && this.passwordCheck && this.inputPassword == this.inputPasswordCheck;
     },
+    inputEmail() {
+      this.emailCheck = false;
+      this.authCodeCheck = false;
+    }
   },
   mounted() {
     const send_id_btn = document.querySelector("#send_id");
@@ -136,17 +142,21 @@ export default {
     const cancel_btn = document.querySelector("#cancel");
     const join_btn = document.querySelector("#join");
 
+    let $vm = this;
+
     send_id_btn.onclick = function () {
-      id_check(this.inputId);
+      id_check($vm.inputId);
     };
     send_nickname_btn.onclick = function () {
-      nickname_check(this.inputNickname);
+      nickname_check($vm.inputNickname);
     };
     send_email_btn.onclick = function () {
-      email_check(this.inputEmail);
+      $vm.emailCheck = true;
+      email_check($vm.inputEmail);
     };
     send_auth_code_btn.onclick = function () {
-      auth_code_check(this.inputEmail, this.inputAuthCode);
+      if (auth_code_check($vm.inputEmail, $vm.inputAuthCode))
+        $vm.authCodeCheck = true;
     };
     cancel_btn.onclick = function () {
       router.push("/");
@@ -154,7 +164,7 @@ export default {
     join_btn.onclick = function () {
       // if (join_check()) console.log(true);
       // else console.log(false);
-      join(this.inputId, this.inputNickname, this.inputPassword, this.inputEmail);
+      join($vm.inputId, $vm.inputNickname, $vm.inputPassword, $vm.inputEmail);
     };
   },
 };
@@ -164,6 +174,7 @@ export default {
 .blue {
   color: blue;
 }
+
 .red {
   color: red;
 }
