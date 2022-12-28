@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         message.setTo(email);
         message.setSubject("Board 가입 인증 메일입니다.");
         String authCode = AuthCodeGenerator.getCode(12);
-        message.setText(authCode);
+        message.setText("인증코드 : " + authCode);
 
         javaMailSender.send(message);
 
