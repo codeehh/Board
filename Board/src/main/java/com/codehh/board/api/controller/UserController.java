@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -21,7 +22,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    private HashMap<String, String> emailToAuthCode = new HashMap<>();
+    private ConcurrentHashMap<String, String> emailToAuthCode = new ConcurrentHashMap<>();
 
     @PostMapping("/id-check")
     public ResponseEntity<Object> idCheck(@RequestBody HashMap<String, Object> payload) {
