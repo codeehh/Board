@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
         message.setTo(email);
         message.setSubject("Board 가입 인증 메일입니다.");
         String authCode = AuthCodeGenerator.getCode(12);
-        message.setText(authCode);
+        message.setText("인증코드 : " + authCode);
 
         javaMailSender.send(message);
 
@@ -61,32 +61,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JoinRes join(HashMap<String, Object> payload) throws NoSuchAlgorithmException, JoinFailureException {
-        String id = (String) payload.get("id");
-        String nickname = (String) payload.get("nickname");
-        String password = (String) payload.get("password");
-        String email = (String) payload.get("email");
+    public JoinRes join(JoinReq joinReq) throws NoSuchAlgorithmException, JoinFailureException {
         //id 검사
-        if (!Checker.idChecker(id))
+        if (!Checker.idChecker(joinReq.getId()))
             throw new JoinFailureException();
-        if (userRepository.findById(id) != null)
+        if (userRepository.findById(joinReq.getId()) != null)
             throw new JoinFailureException();
         //닉네임 검사
-        if (!Checker.nicknameChecker(nickname))
+        if (!Checker.nicknameChecker(joinReq.getNickname()))
             throw new JoinFailureException();
-        if (userRepository.findByNickname(nickname) != null)
+        if (userRepository.findByNickname(joinReq.getNickname()) != null)
             throw new JoinFailureException();
         //비밀번호 검사
-        if (!Checker.passwordChecker(password))
+        if (!Checker.passwordChecker(joinReq.getPassword()))
             throw new JoinFailureException();
 
         //검사 전부 통과했으면 가입
         User user = new User();
 
-        user.setId(id);
-        user.setNickname(nickname);
-        user.setHashingPassword(HashGenerator.getHash(password));
-        user.setEmail(email);
+        user.setId(joinReq.getId());
+        user.setNickname(joinReq.getNickname());
+        user.setHashingPassword(HashGenerator.getHash(joinReq.getPassword()));
+        user.setEmail(joinReq.getEmail());
 
         User saveUser = userRepository.save(user);
 

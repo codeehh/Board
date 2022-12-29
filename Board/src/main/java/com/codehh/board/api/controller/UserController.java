@@ -1,5 +1,6 @@
 package com.codehh.board.api.controller;
 
+import com.codehh.board.api.dto.user.request.JoinReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.api.service.UserService;
 import com.codehh.board.common.exception.JoinFailureException;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
@@ -20,7 +22,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    private HashMap<String, String> emailToAuthCode = new HashMap<>();
+    private ConcurrentHashMap<String, String> emailToAuthCode = new ConcurrentHashMap<>();
 
     @PostMapping("/id-check")
     public ResponseEntity<Object> idCheck(@RequestBody HashMap<String, Object> payload) {
@@ -74,11 +76,11 @@ public class UserController {
 
 
     @PostMapping("/users")
-    public ResponseEntity<Object> join(@RequestBody HashMap<String, Object> payload) {
+    public ResponseEntity<Object> join(@RequestBody JoinReq joinReq) {
         HttpStatus status = HttpStatus.OK;
         JoinRes result = null;
         try {
-            result = userService.join(payload);
+            result = userService.join(joinReq);
         } catch (NoSuchAlgorithmException e) {
             status = HttpStatus.INTERNAL_SERVER_ERROR;
         } catch (JoinFailureException e) {
