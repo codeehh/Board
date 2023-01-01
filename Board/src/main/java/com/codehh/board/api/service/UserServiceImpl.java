@@ -1,22 +1,27 @@
 package com.codehh.board.api.service;
 
 import com.codehh.board.api.dto.user.request.JoinReq;
+import com.codehh.board.api.dto.user.request.LoginReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.common.exception.JoinFailureException;
+import com.codehh.board.common.exception.LoginFailureException;
 import com.codehh.board.common.util.AuthCodeGenerator;
 import com.codehh.board.common.util.Checker;
 import com.codehh.board.common.util.HashGenerator;
 import com.codehh.board.db.entity.User;
 import com.codehh.board.db.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -91,5 +96,23 @@ public class UserServiceImpl implements UserService {
         joinRes.setNickname(saveUser.getNickname());
 
         return joinRes;
+    }
+
+    @Override
+    public void login(LoginReq loginReq, HttpServletRequest req) throws NoSuchAlgorithmException, LoginFailureException {
+        User user = userRepository.findByIdAndHashingPassword(loginReq.getId(), HashGenerator.getHash(loginReq.getPassword()));
+
+        if (user == null)
+            throw new LoginFailureException();
+
+        HttpSession session = req.getSession(true);
+
+        if (loginReq.isAutoLogin()) {
+            //30일
+            session.setMaxInactiveInterval(2592000);
+        } else {
+            //30분
+            session.setMaxInactiveInterval(1800);
+        }
     }
 }

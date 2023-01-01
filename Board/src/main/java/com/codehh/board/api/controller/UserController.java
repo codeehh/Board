@@ -1,22 +1,25 @@
 package com.codehh.board.api.controller;
 
 import com.codehh.board.api.dto.user.request.JoinReq;
+import com.codehh.board.api.dto.user.request.LoginReq;
 import com.codehh.board.api.dto.user.response.JoinRes;
 import com.codehh.board.api.service.UserService;
 import com.codehh.board.common.exception.JoinFailureException;
+import com.codehh.board.common.exception.LoginFailureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 @Slf4j
 public class UserController {
     @Autowired
@@ -89,4 +92,20 @@ public class UserController {
 
         return ResponseEntity.status(status).body(result);
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginReq loginReq, HttpServletRequest req) {
+        HttpStatus status = HttpStatus.OK;
+        log.info(loginReq.toString());
+        try {
+            userService.login(loginReq, req);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (LoginFailureException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+
 }

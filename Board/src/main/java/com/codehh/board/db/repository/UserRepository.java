@@ -10,4 +10,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     User findByNickname(String nickname);
 
+    User findByIdAndHashingPassword(String id, String hashingPassword);
 }
