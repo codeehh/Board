@@ -162,9 +162,9 @@ export default {
       router.push("/");
     };
     join_btn.onclick = function () {
-      // if (join_check()) console.log(true);
-      // else console.log(false);
       join($vm.inputId, $vm.inputNickname, $vm.inputPassword, $vm.inputEmail);
+      console.log("go home");
+      router.push("/");
     };
   },
 };

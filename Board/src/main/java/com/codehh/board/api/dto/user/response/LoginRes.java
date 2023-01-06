@@ -7,7 +7,6 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class JoinRes {
-    int userId;
+public class LoginRes {
     String nickname;
 }

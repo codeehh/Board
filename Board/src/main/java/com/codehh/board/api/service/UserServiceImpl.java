@@ -2,7 +2,7 @@ package com.codehh.board.api.service;
 
 import com.codehh.board.api.dto.user.request.JoinReq;
 import com.codehh.board.api.dto.user.request.LoginReq;
-import com.codehh.board.api.dto.user.response.JoinRes;
+import com.codehh.board.api.dto.user.response.LoginRes;
 import com.codehh.board.common.exception.JoinFailureException;
 import com.codehh.board.common.exception.LoginFailureException;
 import com.codehh.board.common.util.AuthCodeGenerator;
@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -53,10 +55,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean passwordCheck(String password) {
+        //조건 검사
+        return Checker.passwordChecker(password);
+    }
+
+    @Override
     public String sendEmail(String email) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
-        message.setSubject("Board 가입 인증 메일입니다.");
+        message.setSubject("Board 인증 메일입니다.");
         String authCode = AuthCodeGenerator.getCode(12);
         message.setText("인증코드 : " + authCode);
 
@@ -66,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JoinRes join(JoinReq joinReq) throws NoSuchAlgorithmException, JoinFailureException {
+    public void join(JoinReq joinReq) throws NoSuchAlgorithmException, JoinFailureException {
         //id 검사
         if (!Checker.idChecker(joinReq.getId()))
             throw new JoinFailureException();
@@ -89,17 +97,11 @@ public class UserServiceImpl implements UserService {
         user.setHashingPassword(HashGenerator.getHash(joinReq.getPassword()));
         user.setEmail(joinReq.getEmail());
 
-        User saveUser = userRepository.save(user);
-
-        JoinRes joinRes = new JoinRes();
-        joinRes.setUserId(saveUser.getUserId());
-        joinRes.setNickname(saveUser.getNickname());
-
-        return joinRes;
+        userRepository.save(user);
     }
 
     @Override
-    public void login(LoginReq loginReq, HttpServletRequest req) throws NoSuchAlgorithmException, LoginFailureException {
+    public LoginRes login(LoginReq loginReq, HttpServletRequest req) throws NoSuchAlgorithmException, LoginFailureException {
         User user = userRepository.findByIdAndHashingPassword(loginReq.getId(), HashGenerator.getHash(loginReq.getPassword()));
 
         if (user == null)
@@ -114,5 +116,54 @@ public class UserServiceImpl implements UserService {
             //30분
             session.setMaxInactiveInterval(1800);
         }
+
+        session.setAttribute("userId", user.getUserId());
+
+        LoginRes loginRes = new LoginRes();
+        loginRes.setNickname(user.getNickname());
+
+        return loginRes;
+    }
+
+    @Override
+    public void logout(HttpServletRequest req) {
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+    }
+
+    @Override
+    public List<String> findId(String email) {
+        List<User> users = userRepository.findByEmail(email);
+        if (users == null) {
+            return null;
+        }
+
+        List<String> ids = new ArrayList<>();
+        for (int i = 0; i < users.size(); i++) {
+            ids.add(users.get(i).getId());
+        }
+
+        return ids;
+    }
+
+    @Override
+    public User findPassword(String id, String email) {
+        User user = userRepository.findByIdAndEmail(id, email);
+
+        return user;
+    }
+
+    @Override
+    public boolean resetPassword(String id, String password) throws NoSuchAlgorithmException {
+        User user = userRepository.findById(id);
+        if (user == null) {
+            return false;
+        }
+        user.setHashingPassword(HashGenerator.getHash(password));
+        userRepository.save(user);
+
+        return true;
     }
 }
