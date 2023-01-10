@@ -72,8 +72,8 @@ public class UserController {
         HttpStatus status = HttpStatus.OK;
         HashMap<String, Object> result = new HashMap<String, Object>();
         //인증코드 매칭 확인
-        boolean isMatch = (emailToAuthCode.get(email).equals(authCode));
-        result.put("isMatch", isMatch);
+        boolean isMatched = (emailToAuthCode.get(email).equals(authCode));
+        result.put("isMatch", isMatched);
 
         return ResponseEntity.status(status).body(result);
     }
@@ -102,7 +102,8 @@ public class UserController {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (LoginFailureException e) {
-            throw new RuntimeException(e);
+            result = new LoginRes();
+            result.setMatched(false);
         }
 
         return ResponseEntity.status(status).body(result);
@@ -143,16 +144,16 @@ public class UserController {
 
         HttpStatus status = HttpStatus.OK;
         HashMap<String, Object> result = new HashMap<String, Object>();
-        boolean isMatch = false;
+        boolean isMatched = false;
 
         //인증코드 매칭 확인
         if (emailToAuthCode.get(email).equals(authCode)) {
             User user = userService.findPassword(id, email);
             if (user != null) {
-                isMatch = true;
+                isMatched = true;
             }
         }
-        result.put("isMatch", isMatch);
+        result.put("isMatched", isMatched);
 
         return ResponseEntity.status(status).body(result);
     }
