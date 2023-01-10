@@ -120,6 +120,7 @@ public class UserServiceImpl implements UserService {
         session.setAttribute("userId", user.getUserId());
 
         LoginRes loginRes = new LoginRes();
+        loginRes.setMatched(true);
         loginRes.setNickname(user.getNickname());
 
         return loginRes;
