@@ -59,7 +59,7 @@ async function auth_code_check(email, auth_code) {
             auth_code: auth_code,
         })
         .then((res) => {
-            if (res.data["isMatch"]) {
+            if (res.data["isMatched"]) {
                 alert("올바른 인증코드입니다")
                 return true;
             }
@@ -102,12 +102,16 @@ async function login(id, password, auto_login) {
             withCredentials: true
         })
         .then((res) => {
-            if (auto_login) {
-                $cookies.set("nickname", res.data["nickname"], 2592000);
+            if (res.data["matched"]) {
+                if (auto_login) {
+                    $cookies.set("nickname", res.data["nickname"], 2592000);
+                } else {
+                    $cookies.set("nickname", res.data["nickname"], 1800);
+                }
+                window.location.reload();
             } else {
-                $cookies.set("nickname", res.data["nickname"], 1800);
+                alert("회원정보가 맞지 않습니다")
             }
-            window.location.reload();
         })
         .catch((err) => {
             console.log(err)
@@ -160,7 +164,7 @@ async function find_password(id, email, auth_code) {
         },)
         .then((res) => {
             console.log(res);
-            if (res.data["isMatch"]) {
+            if (res.data["isMatched"]) {
                 let password = prompt("변경할 비밀번호(특수문자, 알파벳, 숫자 1개 이상 포함, 8~15자리)");
                 reset_password(id, password);
             }
