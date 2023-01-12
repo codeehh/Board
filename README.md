@@ -26,3 +26,7 @@
 - 스프링에서 보낸 쿠키가 브라우저에 저장됐는데 vue-cookies에서 접근할 수 없음
   - 원인 : 쿠키의 HttpOnly(true) 설정 때문, 자바스크립트로 쿠키에 접근할 수 없게 해 보안을 강화하는 것
   - 해결 : 설정을 끄지 말고 다른 방법을 찾자
+
+- axios에서 return해준 값이 undefined임
+  - 원인 : axios안에서만 return해줬다
+  - 해결 : return axios
