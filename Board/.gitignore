@@ -38,3 +38,5 @@ out/
 
 ### properties ###
 application-local.properties
+
+/sql/board_test.sql

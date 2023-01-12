@@ -192,6 +192,22 @@ async function reset_password(id, password) {
             console.log(err)
         });
 }
+/**
+ * order : 정렬 기준 - 0(시간), 1(추천수), 2(조회수)
+ * page : 페이지 번호
+ */
+async function get_posts(order, page) {
+    console.log("post " + order + " " + page);
+    return await axios
+        .get(API_BASE_URL + '/api/posts?order=' + order + '&page=' + page)
+        .then((res) => {
+            console.log(res);
+            return res.data.posts;
+        })
+        .catch((err) => {
+            console.log(err)
+        });
+}
 
 async function test() {
     await axios
@@ -216,5 +232,6 @@ export {
     logout,
     find_id,
     find_password,
+    get_posts,
     test
 };
